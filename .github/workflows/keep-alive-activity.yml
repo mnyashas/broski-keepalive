@@ -1,0 +1,25 @@
+name: keep-alive-activity
+
+# GitHub disables scheduled workflows after 60 days of repository inactivity.
+# This monthly commit keeps the schedule enabled without any manual work.
+on:
+  schedule:
+    - cron: '17 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Touch timestamp
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .alive
+          git config user.name "broski-keepalive"
+          git config user.email "keepalive@users.noreply.github.com"
+          git add .alive
+          git commit -m "chore: keep-alive activity $(date -u +%Y-%m)" || echo "nothing to commit"
+          git push
